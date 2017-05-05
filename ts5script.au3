@@ -32,10 +32,17 @@ Opt("CaretCoordMode", 2)
 ;Charactor Center Point
 $centerX = 437
 $centerY = 267
+
 ;Salavage Constant
-$salvageCycleTime = 3
-$firstBox_x = 410
-$firstBox_y = 193
+$salvageCycleTime = 1800
+
+Local $rowCoordinate_y[2] = [193,282]
+Local $columnCoordinate_x[5] = [410,495,581,665,748]
+Local $BoxRareColor[10] = [4560317,4689330,4691647,4428730,4297400,3508653,3703205,3508655,3311529,3245992]
+Local $BoxNullColor[10] = [8354157,8156777,8485743,8156778,8090985,7300956,7235418,7235418,7169369,7103320]
+
+
+$clickOffset = 30
 
 HotKeySet("{ESC}", "stop")
 
@@ -93,12 +100,13 @@ Func startFarming()
 		While 1
 			$currentDate = _DateDiff('s', "1970/01/01 00:00:00", _NowCalc())
 			if $currentDate - $previuseDate > $salvageCycleTime Then
+				Sleep(15000)
 				$previuseDate = $currentDate
 				startSalvage()
-			#Else
-				#GUICtrlSetData($statusEditText,_NowCalc()& " : Click"& @CRLF, 1)
-				#Sleep(500)
-				#ControlClick ($winHandle, "", "","left",1,$centerX,$centerY)
+			Else
+				;GUICtrlSetData($statusEditText,_NowCalc()& " : Click"& @CRLF, 1)
+				Sleep(500)
+				ControlClick ($winHandle, "", "","left",1,$centerX,$centerY)
 			EndIf
 		WEnd
 
@@ -120,15 +128,70 @@ Func startSalvage()
 	ControlClick($winHandle,"","","left",1,322, 69)
 	Sleep(1000)
 	;Select all equipment
-	GUICtrlSetData($statusEditText,_NowCalc()& " : Choose an equipment Button"& @CRLF, 1)
+	GUICtrlSetData($statusEditText,_NowCalc()& " : Select all equipment"& @CRLF, 1)
 	ControlClick($winHandle,"","","left",1,473, 472)
 	Sleep(1000)
 
 	;Uncheck purple rare equipment
-	$color = PixelGetColor($firstBox_x,$firstBox_y,$GameHD)
-	GUICtrlSetData($statusEditText,_NowCalc()& & @CRLF, 1)
+	$numberOfBlueEquipment = 0
+	While 1
+		$numberOfBlueEquipment = 0
+		;loop for re check
+		While 1
+			ConsoleWrite($numberOfBlueEquipment & @CRLF)
+			For $i = 0 to 1
+				For $j = 0 to 4
+					ConsoleWrite("i = "& $i & "j = " & $j & @CRLF)
+					ConsoleWrite(PixelGetColor($columnCoordinate_x[$j],$rowCoordinate_y[$i],$winHandle)&"="&$BoxNullColor[$i*5+$j] & @CRLF)
+					If PixelGetColor($columnCoordinate_x[$j],$rowCoordinate_y[$i],$winHandle) = $BoxNullColor[$i*5+$j] Then
+							ConsoleWrite("Empty"& @CRLF)
+							ExitLoop 3
+					EndIf
 
-	Exit
+					If PixelGetColor($columnCoordinate_x[$j],$rowCoordinate_y[$i],$winHandle) = $BoxRareColor[$i*5+$j] Then
+						$numberOfBlueEquipment += 1
+						If $i = 1 And $j = 4 Then
+							ConsoleWrite("Last Item exit Loop"& @CRLF)
+							ExitLoop 3
+						EndIf
+					Else
+						ControlClick($winHandle,"","","left",1,$columnCoordinate_x[$j]+$clickOffset, $rowCoordinate_y[$i])
+						Sleep(500)
+						If $i = 1 And $j = 4 Then
+							ConsoleWrite("Last Item exit Loop"& @CRLF)
+							ExitLoop 3
+						Else
+							ExitLoop 2
+						EndIf
+					EndIf
+				Next
+			Next
+		WEnd
+		ConsoleWrite("NumberOfEquipMent = "&$numberOfBlueEquipment & @CRLF)
+
+		;if not have bluerare
+		If $numberOfBlueEquipment = 0 Then
+			ExitLoop
+		;sell press
+		Else
+			GUICtrlSetData($statusEditText,_NowCalc()& " : Sell = "&$numberOfBlueEquipment& @CRLF, 1)
+			ConsoleWrite("Sell = "&$numberOfBlueEquipment & @CRLF)
+			ControlClick($winHandle,"","","left",1,753, 471)
+			Sleep(500)
+			;Select all equipment
+			GUICtrlSetData($statusEditText,_NowCalc()& " : Select all equipment"& @CRLF, 1)
+			ControlClick($winHandle,"","","left",1,473, 472)
+			Sleep(1000)
+		EndIf
+	WEnd
+
+
+
+	GUICtrlSetData($statusEditText,_NowCalc()& " : Exit Salvage"& @CRLF, 1)
+
+	ControlClick($winHandle,"","","left",1,836, 66)
+	Sleep(1000)
+
 EndFunc
 
 
