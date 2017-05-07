@@ -27,7 +27,7 @@ GUISetState(@SW_SHOW)
 #EndRegion ### END Koda GUI section ###
 #Start Search Pixel From Memory Parameters
 ;$winHandle = WinGetHandle("Nox1")
-$winHandle = WinGetHandle("Nox1")
+$winHandle = WinGetHandle("Nox1-Copy")
 ;Set Mouse Mode
 Opt("MouseCoordMode", 2)
 Opt("PixelCoordMode", 2)
@@ -52,8 +52,8 @@ Local $BoxNullColor[10] = [8354157,8156777,8485743,8156778,8090985,7300956,72354
 
 $clickOffset = 30
 
-;HotKeySet("{ESC}", "stop")
-HotKeySet("{PAUSE}", "stop")
+HotKeySet("{ESC}", "stop")
+
 Func setColorBox()
 	For $i = 0 to 1
 		For $j = 0 to 4
@@ -71,8 +71,8 @@ Func setBlueColorBox()
 EndFunc
 
 Func stop()
-     ToolTip('ËÂØ´¡ÒÃ·Ó§Ò¹', 0, 0)
-	 GUICtrlSetData($statusEditText,_NowCalc()& " : Stop Farming"& @CRLF, 1)
+     ToolTip('��ش��÷ӧҹ', 0, 0)
+	 GUICtrlSetData($statusEditText,_NowCalc()& " : Start Farming"& @CRLF, 1)
     $isFarming = False
 EndFunc
 
